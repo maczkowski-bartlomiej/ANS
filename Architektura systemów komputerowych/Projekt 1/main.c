@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdio.h>
+#include <conio.h>
 
 void exercise1();
 void exercise2();
@@ -7,8 +8,8 @@ void exercise3();
 void exercise4();
 void exercise5();
 
-void printByteDataHex(const char* message, void* data, int bytes);
-void printByteDataBin(const char* message, void* data, int bytes);
+void printByteDataHex(void* data, int bytes);
+void printByteDataBin(void* data, int bytes);
 
 void printBinaryInt(int x);
 void printBinaryFloat(float x);
@@ -26,6 +27,7 @@ int main()
 
 	while (input != '6')
 	{
+		printf("==============\n     Menu\n==============\n");
 		printf("1. Wydrukowanie postaci bajtowej danych INT, FLOAT, DOUBLE\n");
 		printf("2. Wydrukowanie postaci binarnej danych INT, FLOAT, DOUBLE\n");
 		printf("3. Zaprezentowanie wykonywania odejmowania w U2\n");
@@ -33,7 +35,7 @@ int main()
 		printf("5. Zaprezentowanie konwersji DEC -> FLOAT\n");
 		printf("6. Wyjscie\n");
 
-		input = getch();
+		input = _getch();
 		system("cls");
 		switch (input)
 		{
@@ -53,28 +55,54 @@ int main()
 
 void exercise1()
 {
-	int i = 23;
-	float f = 3.14f;
-	double d = 6.28318530718;
-
 	printf("Postac bajtowa (heksadecymalnie) roznych typow danych\n");
 	printf("-----------------------------------------------------\n");
-	printByteDataHex("int 23 == ", &i, sizeof(int));
-	printByteDataHex("float 3.14 == ", &f, sizeof(float));
-	printByteDataHex("double 6.28318530718 == ", &d, sizeof(double));
+
+	int i;
+	float f; 	
+	double d; 	
+
+	printf("Podaj wartosc int: ");
+	scanf("%d", &i);
+	printf("Podaj wartosc float: ");
+	scanf("%f", &f);
+	printf("Podaj wartosc double: ");
+	scanf("%lf", &d);
+
+	printf("-----------------------------------------------------\n\n");
+
+	printf("int %d = ", i);
+	printByteDataHex(&i, sizeof(int));
+	printf("float %f = ", f);
+	printByteDataHex(&f, sizeof(float));
+	printf("double %f = ", d);
+	printByteDataHex(&d, sizeof(double));
 }
 
 void exercise2()
 {
-	int i = 23;
-	float f = 3.14f;
-	double d = 6.28318530718;
-
 	printf("Postac bajtowa (binarnie) roznych typow danych\n");
-	printf("----------------------------------------------\n");
-	printByteDataBin("int 23 == ", &i, sizeof(int));
-	printByteDataBin("float 3.14 == ", &f, sizeof(float));
-	printByteDataBin("double 6.28318530718 == ", &d, sizeof(double));
+	printf("-----------------------------------------------------\n");
+
+	int i;
+	float f;
+	double d;
+
+	printf("Podaj wartosc int: ");
+	scanf("%d", &i);
+	printf("Podaj wartosc float: ");
+	scanf("%f", &f);
+	printf("Podaj wartosc double: ");
+	scanf("%lf", &d);
+
+	printf("-----------------------------------------------------\n\n");
+
+	printf("int %d = ", i);
+	printByteDataBin(&i, sizeof(int));
+	printf("float %f = ", f);
+	printByteDataBin(&f, sizeof(float));
+	printf("double %f = ", d);
+	printByteDataBin(&d, sizeof(double));
 }
 
 void exercise3()
@@ -94,7 +122,11 @@ void exercise4()
 {
 	printf("Prezentacja konwersji DEC -> FLOAT\n");
 	printf("----------------------------------\n");
-	decToFloat(0.3f);
+	printf("Podaj wartosc: ");
+	float f;
+	scanf("%f", &f);
+	printf("\n\n");
+	decToFloat(f);
 }
 
 void exercise5()
@@ -104,9 +136,8 @@ void exercise5()
 	floatToDec("11000000110110011001100110011010");
 }
 
-void printByteDataHex(const char* message, void* data, int bytes)
+void printByteDataHex(void* data, int bytes)
 {
-	printf("%-24s", message);
 	const unsigned char* it = (const unsigned char*)data;
 	for (int i = 0; i < bytes; i++)
 		printf("0x%02x ", it[i]);
@@ -114,9 +145,8 @@ void printByteDataHex(const char* message, void* data, int bytes)
 	printf("\n\n");
 }
 
-void printByteDataBin(const char* message, void* data, int bytes)
+void printByteDataBin(void* data, int bytes)
 {
-	printf("%-24s", message);
 	const unsigned char* it = (const unsigned char*)data;
 	for (int i = 0; i < bytes; i++)
 	{
@@ -241,11 +271,9 @@ void decToFloat(float x)
 	printf("%f\n=\n%d ", xCopy, sign);
 	for (int i = 7; i >= 0; i--)
 		printf("%d", (exponent >> i) & 1);
-
 	printf(" ");
 	for (int i = 0; i < 23; i++)
 		printf("%c", mantissa[i]);
-
 	printf("\n\n");
 }
 
@@ -255,7 +283,7 @@ int binToDec(const char* x, int start, int size)
 	for (int i = 0; i < size; i++)
 	{
 		if (x[i + start] == '1')
-			sum += pow(2, size - 1 - i);
+			sum += (int)powf(2.0f, (float)(size - 1 - i));
 	}
 
 	return sum;
@@ -276,22 +304,20 @@ void floatToDec(const char* x)
 	printf("4. Konwertujemy mantyse\n");
 	printf("%.23s = ", &x[9]);
 
-	float mantissa = 0.0f;
+	float fraction = 0.0f;
 	for (int i = 0; i < 23; i++)
 	{
 		int bit = x[9 + i] - '0';
-		mantissa += bit * (1.0f / (1 << (i + 1)));
+		fraction += bit * (1.0f / (1 << (i + 1)));
 
 		if (i != 22)
 			printf("%d * 2^(%d) + ", bit, -(i + 1));
 		else 
 			printf("%d * 2^(%d) = ", bit, -(i + 1));
 	}
-	printf("%f\n\n", mantissa);
+	printf("%f\n\n", fraction);
 
 	printf("5. Obliczamy rezultat\n");
-	float result = pow(-1, sign) * (1 + mantissa) * (1 << (exponent - 127));
-	printf("(-1)^(znak) * (1 + mantysa) * 2^(cecha - 127)\n");
-	printf("=> (-1)^(%d) * (1 + %f) * 2^(%d - 127)\n", sign, mantissa, exponent);
-	printf("=> %f\n\n", result);
+	float result = powf(-1.0f, (float)sign) * (1 + fraction) * powf(2.0f, (float)(exponent - 127));
+	printf("(-1)^(znak) * (1 + mantysa) * 2^(cecha - 127)\n=>\n(-1)^(%d) * (1 + %f) * 2^(%d - 127)\n=>\n%f\n\n", sign, fraction, exponent, result);
 }
